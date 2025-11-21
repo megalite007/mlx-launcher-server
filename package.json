@@ -7,7 +7,7 @@
   "author": "Logan / MLX Studio",
   "license": "MIT",
   "scripts": {
-    "start": "electron main.js",
+  "start": "node server.js",
     "server": "node server.js",
     "dev": "node server.js",
     "build": "electron-builder"
