@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 const GAMES_FILE = path.join(__dirname, 'data', 'games.json');
 const USERS_FILE = path.join(__dirname, 'data', 'users.json');
 const DOWNLOADS_FILE = path.join(__dirname, 'data', 'downloads.json');
@@ -107,7 +107,9 @@ async function initializeFiles() {
   }
 }
 
-initializeFiles();
+initializeFiles().catch(err => {
+  console.error('❌ Erreur initialisation:', err);
+});
 
 // Helper functions
 function readJSON(file) {
