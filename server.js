@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3000;
 const GAMES_FILE = path.join(__dirname, 'data', 'games.json');
 const USERS_FILE = path.join(__dirname, 'data', 'users.json');
 const DOWNLOADS_FILE = path.join(__dirname, 'data', 'downloads.json');
