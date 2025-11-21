@@ -1,0 +1,50 @@
+{
+  "name": "mlx-launcher",
+  "version": "2.0.0",
+  "description": "MLX Launcher - Complete Game Launcher with Download and Installation",
+  "main": "main.js",
+  "homepage": "./",
+  "author": "Logan / MLX Studio",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron main.js",
+    "server": "node server.js",
+    "dev": "node server.js",
+    "build": "electron-builder"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "body-parser": "^1.20.2",
+    "bcrypt": "^5.1.0",
+    "jsonwebtoken": "^9.0.0",
+    "multer": "^1.4.5-lts.1",
+    "unzipper": "^0.10.14",
+    "electron-is-dev": "^2.0.0"
+  },
+  "devDependencies": {
+    "electron": "^27.0.0",
+    "electron-builder": "^24.6.4"
+  },
+  "build": {
+    "appId": "com.mlxstudio.launcher",
+    "productName": "MLX Launcher",
+    "files": [
+      "main.js",
+      "preload.js",
+      "launcher.html"
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  }
+}

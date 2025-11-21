@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MLX Launcher</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+            color: #fff;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+        }
+
+        /* ===== LOGIN SCREEN ===== */
+        .login-screen {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0f1a35 100%);
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            opacity: 1;
+            transition: opacity 0.5s ease;
+        }
+
+        .login-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .login-card {
+            background: rgba(15, 20, 40, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 50px;
+            border-radius: 15px;
+            width: 100%;
+            max-width: 450px;
+            border: 2px solid #1e88e5;
+            box-shadow: 0 0 40px rgba(30, 136, 229, 0.3);
+            animation: slideUp 0.6s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-card h1 {
+            text-align: center;
+            font-size: 32px;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #1e88e5 0%, #42a5f5 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+        }
+
+        .login-card .subtitle {
+            text-align: center;
+            color: #90caf9;
+            margin-bottom: 40px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #64b5f6;
+            font-weight: 600;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #1a2f5a;
+            background: rgba(20, 30, 60, 0.8);
+            color: #fff;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #1e88e5;
+            box-shadow: 0 0 20px rgba(30, 136, 229, 0.3);
+            background: rgba(20, 30, 60, 0.95);
+        }
+
+        .form-group input::placeholder {
+            color: #546e7a;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%);
+            border: none;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            box-shadow: 0 5px 20px rgba(30, 136, 229, 0.3);
+        }
+
+        .login-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(30, 136, 229, 0.5);
+            background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .error-message {
+            color: #ef5350;
+            font-size: 12px;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .toggle-forms {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .form-toggle-btn {
+            padding: 10px 20px;
+            background: transparent;
+            border: 2px solid #1a2f5a;
+            color: #64b5f6;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .form-toggle-btn.active {
+            background: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%);
+            border-color: #1e88e5;
+            color: #fff;
+        }
+
+        /* ===== MAIN LAUNCHER ===== */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #0a0e27 0%, #0f1a35 100%);
+            border-right: 2px solid #1a2f5a;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            overflow-y: auto;
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #1a2f5a;
+        }
+
+        .sidebar-logo .icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .sidebar-logo h2 {
+            font-size: 20px;
+            background: linear-gradient(135deg, #1e88e5 0%, #42a5f5 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+        }
+
+        .nav-section {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .nav-section-title {
+            font-size: 11px;
+            color: #546e7a;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .nav-item {
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            color: #90caf9;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            background: rgba(30, 136, 229, 0.15);
+            color: #42a5f5;
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%);
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .nav-item .icon {
+            font-size: 20px;
+        }
+
+        .user-section {
+            margin-top: auto;
+            padding-top: 20px;
+            border-top: 2px solid #1a2f5a;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .user-details {
+            flex: 1;
+        }
+
+        .user-details .username {
+            font-size: 13px;
+            font-weight: 600;
+            color: #64b5f6;
+        }
+
+        .user-details .status {
+            font-size: 11px;
+            color: #546e7a;
+        }
+
+        .logout-btn {
+            width: 100%;
+            padding: 10px;
+            background: rgba(30, 136, 229, 0.2);
+            border: 1px solid #1e88e5;
+            color: #64b5f6;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .logout-btn:hover {
+            background: rgba(30, 136, 229, 0.4);
+            color: #fff;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(135deg, #0a0e27 0%, #0f1a35 100%);
+        }
+
+        .header {
+            padding: 25px 35px;
+            border-bottom: 2px solid #1a2f5a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            background: linear-gradient(135deg, #1e88e5 0%, #42a5f5 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .search-bar input {
+            padding: 11px 16px;
+            background: rgba(30, 50, 90, 0.6);
+            border: 2px solid #1a2f5a;
+            border-radius: 8px;
+            color: #fff;
+            width: 280px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            border-color: #1e88e5;
+            background: rgba(30, 50, 90, 0.9);
+        }
+
+        .search-bar input::placeholder {
+            color: #546e7a;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 35px;
+            overflow-y: auto;
+        }
+
+        .content-area::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .content-area::-webkit-scrollbar-track {
+            background: rgba(30, 50, 90, 0.3);
+            border-radius: 10px;
+        }
+
+        .content-area::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #1e88e5 0%, #1565c0 100%);
+            border-radius: 10px;
+        }
+
+        /* ===== GAMES GRID ===== */
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 25px;
+        }
+
+        .game-card {
+            background: rgba(20, 30, 60, 0.8);
+            border: 2px solid #1a2f5a;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            height: auto;
+        }
+
+        .game-card:hover {
+            border-color: #1e88e5;
+            transform: translateY(-10px);
+            box-shadow: 0 15px 50px rgba(30, 136, 229, 0.3);
+        }
+
+        .game-image {
+            width: 100%;
+            height: 160px;
+            background: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 52px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-image::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .game-info {
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .game-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: #64b5f6;
+        }
+
+        .game-desc {
+            font-size: 12px;
+            color: #90caf9;
+            margin-bottom: 12px;
+        }
+
+        .game-status {
+            font-size: 11px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .game-status.notinstalled {
+            background: rgba(30, 136, 229, 0.3);
+            color: #64b5f6;
+        }
+
+        .game-status.installed {
+            background: rgba(76, 175, 80, 0.3);
+            color: #81c784;
+        }
+
+        .game-status.downloading {
+            background: rgba(255, 152, 0, 0.3);
+            color: #ffb74d;
+        }
+
+        .game-button {
+            width: 100%;
+            padding: 11px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .game-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .game-button.install {
+            background: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%);
+            color: #fff;
+        }
+
+        .game-button.install:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(30, 136, 229, 0.4);
+        }
+
+        .game-button.play {
+            background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+            color: #fff;
+        }
+
+        .game-button.play:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(30, 136, 229, 0.2);
+            border-radius: 2px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #1e88e5 0%, #42a5f5 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* ===== LIBRARY ===== */
+        .library-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .library-item {
+            background: rgba(20, 30, 60, 0.8);
+            border: 2px solid #1a2f5a;
+            border-radius: 10px;
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .library-item:hover {
+            border-color: #1e88e5;
+            background: rgba(20, 30, 60, 0.95);
+        }
+
+        .library-item-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            flex-shrink: 0;
+        }
+
+        .library-item-content {
+            flex: 1;
+        }
+
+        .library-item-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: #64b5f6;
+            margin-bottom: 5px;
+        }
+
+        .library-item-meta {
+            font-size: 12px;
+            color: #90caf9;
+        }
+
+        .library-item-action {
+            padding: 11px 24px;
+            background: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%);
+            border: none;
+            color: #fff;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .library-item-action:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(30, 136, 229, 0.4);
+        }
+
+        .library-item-action:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* ===== SECTIONS ===== */
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .loading {
+            text-align: center;
+            color: #90caf9;
+            padding: 60px 40px;
+            font-size: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- LOGIN SCREEN -->
+        <div class="login-screen" id="loginScreen">
+            <div class="login-card">
+                <h1>MLX LAUNCHER</h1>
+                <p class="subtitle">Gère tes jeux en un seul endroit</p>
+
+                <div class="toggle-forms">
+                    <button class="form-toggle-btn active" onclick="toggleForm('login')">Connexion</button>
+                    <button class="form-toggle-btn" onclick="toggleForm('register')">Inscription</button>
+                </div>
+
+                <!-- LOGIN FORM -->
+                <div id="loginForm">
+                    <div class="form-group">
+                        <label>Pseudo ou Email</label>
+                        <input type="text" id="loginUsername" placeholder="Ton pseudo ou email">
+                    </div>
+                    <div class="form-group">
+                        <label>Mot de passe</label>
+                        <input type="password" id="loginPassword" placeholder="Ton mot de passe">
+                    </div>
+                    <button class="login-btn" id="loginBtn" onclick="login()">Connexion</button>
+                    <div class="error-message" id="loginError"></div>
+                </div>
+
+                <!-- REGISTER FORM -->
+                <div id="registerForm" style="display: none;">
+                    <div class="form-group">
+                        <label>Pseudo</label>
+                        <input type="text" id="regUsername" placeholder="Choisis un pseudo">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="regEmail" placeholder="Ton email">
+                    </div>
+                    <div class="form-group">
+                        <label>Mot de passe</label>
+                        <input type="password" id="regPassword" placeholder="Un mot de passe solide">
+                    </div>
+                    <div class="form-group">
+                        <label>Confirmer le mot de passe</label>
+                        <input type="password" id="regPasswordConfirm" placeholder="Confirme ton mot de passe">
+                    </div>
+                    <button class="login-btn" id="registerBtn" onclick="register()">S'inscrire</button>
+                    <div class="error-message" id="registerError"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MAIN LAUNCHER -->
+        <div class="sidebar">
+            <div class="sidebar-logo">
+                <div class="icon">L</div>
+                <h2>MLX</h2>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Menu</div>
+                <div class="nav-item active" onclick="switchSection('discover', this)">
+                    <span class="icon">⚡</span>
+                    <span>Découvrir</span>
+                </div>
+                <div class="nav-item" onclick="switchSection('library', this)">
+                    <span class="icon">📂</span>
+                    <span>Ma Bibliothèque</span>
+                </div>
+                <div class="nav-item" onclick="switchSection('downloads', this)">
+                    <span class="icon">📥</span>
+                    <span>Téléchargements</span>
+                </div>
+            </div>
+
+            <div class="user-section">
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">L</div>
+                    <div class="user-details">
+                        <div class="username" id="username">Logan</div>
+                        <div class="status">En ligne</div>
+                    </div>
+                </div>
+                <button class="logout-btn" onclick="logout()">Déconnexion</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <h1 id="pageTitle">Découvrir</h1>
+                <div class="search-bar">
+                    <input type="text" id="searchInput" placeholder="Rechercher un jeu...">
+                </div>
+            </div>
+
+            <div class="content-area">
+                <!-- DISCOVER SECTION -->
+                <div class="section active" id="discover-section">
+                    <div class="games-grid" id="gamesGrid">
+                        <div class="loading">Chargement des jeux...</div>
+                    </div>
+                </div>
+
+                <!-- LIBRARY SECTION -->
+                <div class="section" id="library-section">
+                    <div class="library-list" id="libraryList">
+                        <div class="loading">Chargement de votre bibliothèque...</div>
+                    </div>
+                </div>
+
+                <!-- DOWNLOADS SECTION -->
+                <div class="section" id="downloads-section">
+                    <div class="library-list" id="downloadsList">
+                        <div class="loading">Aucun téléchargement en cours</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://127.0.0.1:3001';
+        let allGames = [];
+        let userLibrary = [];
+        let downloads = [];
+
+        async function loadGames() {
+            try {
+                const result = await window.electronAPI.getGames();
+                if (result.success) {
+                    allGames = result.data;
+                    renderGames();
+                }
+            } catch (error) {
+                console.error('Error loading games:', error);
+            }
+        }
+
+        function renderGames() {
+            const grid = document.getElementById('gamesGrid');
+            grid.innerHTML = '';
+
+            allGames.forEach(game => {
+                const isInstalled = userLibrary.some(g => g.id === game.id);
+                const download = downloads.find(d => d.gameId === game.id);
+                const statusText = isInstalled ? 'Installé' : download ? 'Téléchargement...' : 'Non installé';
+                const statusClass = isInstalled ? 'installed' : download ? 'downloading' : 'notinstalled';
+                const buttonClass = isInstalled ? 'play' : 'install';
+                const buttonText = isInstalled ? 'Lancer' : 'Télécharger';
+
+                const card = document.createElement('div');
+                card.className = 'game-card';
+                card.innerHTML = `
+                    <div class="game-image">${game.emoji}</div>
+                    <div class="game-info">
+                        <div class="game-title">${game.name}</div>
+                        <div class="game-desc">${game.description}</div>
+                        <div class="game-status ${statusClass}">${statusText}</div>
+                        ${download ? `<div class="progress-bar"><div class="progress-fill" style="width: ${download.progress}%"></div></div>` : ''}
+                        <button class="game-button ${buttonClass}" onclick="handleGameAction(${game.id})" ${download ? 'disabled' : ''}>${buttonText}</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        async function handleGameAction(gameId) {
+            const game = allGames.find(g => g.id === gameId);
+            const isInstalled = userLibrary.some(g => g.id === gameId);
+
+            if (isInstalled) {
+                launchGame(game);
+            } else {
+                installGame(game);
+            }
+        }
+
+        async function installGame(game) {
+            try {
+                const result = await window.electronAPI.createDownload(game.id);
+                if (!result.success) {
+                    alert('Erreur: ' + result.error);
+                    return;
+                }
+
+                const download = result.data;
+                downloads.push(download);
+                renderGames();
+
+                const downloadResult = await window.electronAPI.downloadGame({
+                    downloadLink: download.downloadLink,
+                    gameId: game.id,
+                    gameName: game.name
+                });
+
+                if (!downloadResult.success) {
+                    alert('Erreur de téléchargement: ' + downloadResult.error);
+                    downloads = downloads.filter(d => d.id !== download.id);
+                    renderGames();
+                    return;
+                }
+
+                const gameFolderName = game.name.replace(/\s+/g, '_');
+                const extractResult = await window.electronAPI.extractGame({
+                    filePath: downloadResult.filePath,
+                    gameFolder: gameFolderName
+                });
+
+                if (!extractResult.success) {
+                    alert('Erreur extraction: ' + extractResult.error);
+                    return;
+                }
+
+                await window.electronAPI.completeDownload({
+                    downloadId: download.id,
+                    installPath: extractResult.extractPath
+                });
+
+                userLibrary.push(game);
+                downloads = downloads.filter(d => d.id !== download.id);
+                renderGames();
+                alert(`${game.name} installé avec succès!`);
+            } catch (error) {
+                alert('Erreur installation: ' + error);
+            }
+        }
+
+        async function launchGame(game) {
+            try {
+                const download = downloads.find(d => d.gameId === game.id && d.status === 'installed');
+                if (!download) {
+                    alert('Installation du jeu non trouvée');
+                    return;
+                }
+
+                const result = await window.electronAPI.launchGame({
+                    executable: game.executable,
+                    gamePath: download.installPath
+                });
+
+                if (!result.success) {
+                    alert('Erreur lancement: ' + result.error);
+                }
+            } catch (error) {
+                alert('Erreur: ' + error);
+            }
+        }
+
+        function toggleForm(form) {
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const buttons = document.querySelectorAll('.form-toggle-btn');
+
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            if (form === 'login') {
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+                buttons[0].classList.add('active');
+            } else {
+                registerForm.style.display = 'block';
+                loginForm.style.display = 'none';
+                buttons[1].classList.add('active');
+            }
+        }
+
+        async function login() {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            const btn = document.getElementById('loginBtn');
+            const errorDiv = document.getElementById('loginError');
+
+            if (!username || !password) {
+                errorDiv.textContent = 'Remplissez tous les champs';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Connexion...';
+
+            try {
+                const result = await window.electronAPI.authLogin({ username, password });
+
+                if (result.success) {
+                    document.getElementById('username').textContent = result.data.username;
+                    document.getElementById('userAvatar').textContent = result.data.username.charAt(0).toUpperCase();
+                    document.getElementById('loginScreen').classList.add('hidden');
+
+                    loadGames();
+                    loadLibrary();
+                    loadDownloads();
+                } else {
+                    errorDiv.textContent = result.error || 'Erreur de connexion';
+                }
+            } catch (error) {
+                errorDiv.textContent = 'Erreur: ' + error.message;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Connexion';
+            }
+        }
+
+        async function register() {
+            const username = document.getElementById('regUsername').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('regPasswordConfirm').value;
+            const btn = document.getElementById('registerBtn');
+            const errorDiv = document.getElementById('registerError');
+
+            if (!username || !email || !password || !confirmPassword) {
+                errorDiv.textContent = 'Remplissez tous les champs';
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                errorDiv.textContent = 'Les mots de passe ne correspondent pas';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Inscription...';
+
+            try {
+                const result = await window.electronAPI.authRegister({ username, email, password });
+
+                if (result.success) {
+                    alert('Inscription réussie! Connecte-toi maintenant.');
+                    toggleForm('login');
+                    document.getElementById('regUsername').value = '';
+                    document.getElementById('regEmail').value = '';
+                    document.getElementById('regPassword').value = '';
+                    document.getElementById('regPasswordConfirm').value = '';
+                    errorDiv.textContent = '';
+                } else {
+                    errorDiv.textContent = result.error || 'Erreur lors de l\'inscription';
+                }
+            } catch (error) {
+                errorDiv.textContent = 'Erreur: ' + error.message;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'S\'inscrire';
+            }
+        }
+
+        async function loadLibrary() {
+            try {
+                const result = await window.electronAPI.getLibrary();
+                if (result.success) {
+                    userLibrary = result.data;
+                    renderLibrary();
+                }
+            } catch (error) {
+                console.error('Error loading library:', error);
+            }
+        }
+
+        function renderLibrary() {
+            const library = document.getElementById('libraryList');
+            library.innerHTML = '';
+
+            if (userLibrary.length === 0) {
+                library.innerHTML = '<div class="loading">Votre bibliothèque est vide</div>';
+                return;
+            }
+
+            userLibrary.forEach(game => {
+                const item = document.createElement('div');
+                item.className = 'library-item';
+                item.innerHTML = `
+                    <div class="library-item-icon">${game.emoji}</div>
+                    <div class="library-item-content">
+                        <div class="library-item-title">${game.name}</div>
+                        <div class="library-item-meta">${game.description}</div>
+                    </div>
+                    <button class="library-item-action" onclick="launchGame({id: ${game.id}, name: '${game.name}', emoji: '${game.emoji}', description: '${game.description}', executable: '${game.executable}'})">Lancer</button>
+                `;
+                library.appendChild(item);
+            });
+        }
+
+        async function loadDownloads() {
+            try {
+                const result = await window.electronAPI.getDownloads();
+                if (result.success) {
+                    downloads = result.data;
+                    renderDownloads();
+                }
+            } catch (error) {
+                console.error('Error loading downloads:', error);
+            }
+        }
+
+        function renderDownloads() {
+            const downloadsList = document.getElementById('downloadsList');
+            downloadsList.innerHTML = '';
+
+            const activeDownloads = downloads.filter(d => d.status !== 'installed');
+
+            if (activeDownloads.length === 0) {
+                downloadsList.innerHTML = '<div class="loading">Aucun téléchargement en cours</div>';
+                return;
+            }
+
+            activeDownloads.forEach(download => {
+                const item = document.createElement('div');
+                item.className = 'library-item';
+                item.innerHTML = `
+                    <div class="library-item-content">
+                        <div class="library-item-title">${download.gameName}</div>
+                        <div class="library-item-meta">Téléchargement en cours...</div>
+                        <div class="progress-bar" style="margin-top: 10px;">
+                            <div class="progress-fill" style="width: ${download.progress}%"></div>
+                        </div>
+                    </div>
+                `;
+                downloadsList.appendChild(item);
+            });
+        }
+
+        function switchSection(sectionName, navElement) {
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            navElement.classList.add('active');
+
+            document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
+
+            const section = document.getElementById(`${sectionName}-section`);
+            if (section) {
+                section.classList.add('active');
+
+                const titles = {
+                    'discover': 'Découvrir',
+                    'library': 'Ma Bibliothèque',
+                    'downloads': 'Téléchargements'
+                };
+                document.getElementById('pageTitle').textContent = titles[sectionName];
+
+                if (sectionName === 'library') loadLibrary();
+                if (sectionName === 'downloads') loadDownloads();
+            }
+        }
+
+        function logout() {
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('loginUsername').value = '';
+            document.getElementById('loginPassword').value = '';
+            allGames = [];
+            userLibrary = [];
+            downloads = [];
+        }
+
+        if (window.electronAPI && window.electronAPI.onDownloadProgress) {
+            window.electronAPI.onDownloadProgress((data) => {
+                const download = downloads.find(d => d.gameId === data.gameId);
+                if (download) {
+                    download.progress = data.progress;
+                    renderGames();
+                    renderDownloads();
+                }
+            });
+        }
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            const cards = document.querySelectorAll('.game-card');
+            cards.forEach(card => {
+                const title = card.querySelector('.game-title').textContent.toLowerCase();
+                card.style.display = title.includes(query) ? 'flex' : 'none';
+            });
+        });
+    </script>
+</body>
+</html>
