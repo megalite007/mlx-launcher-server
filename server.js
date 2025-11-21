@@ -69,7 +69,7 @@ function initializeData() {
   name: 'my summer car',
   emoji: '💻',
   description: 'test',
-  downloadUrl: 'https://drive.google.com/file/d/1kHwV-CIXxmYIhI6YVofFA4X83bzhdzDl/view?usp=sharing',
+  downloadUrl: 'https://drive.google.com/uc?export=download&id=1kHwV-CIXxmYIhI6YVofFA4X83bzhdzDl',
   executable: 'setup.exe'
 }
     ];
